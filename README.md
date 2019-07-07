@@ -5,9 +5,9 @@ Coding exercise solution for Revolut.
 Program executable from Application.java.
 
 Contains the following endpoints:
-GET /accounts
-GET /accounts/:accountUid
-PUT /accounts/:accountUid/transfer
+- GET /accounts
+- GET /accounts/:accountUid
+- PUT /accounts/:accountUid/transfer
 
 ### Comments
 - ~~Tests doesn't pass, for some suites seems like @BeforeClass annotation doesn't work and the web service doesn't start~~
