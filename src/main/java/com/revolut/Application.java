@@ -5,19 +5,20 @@ import com.revolut.account.AccountDao;
 import com.revolut.account.payment.PaymentController;
 import com.revolut.account.payment.PaymentDao;
 
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.put;
 
 public class Application {
 
-    public static AccountDao accountDao;
-    public static PaymentDao paymentDao;
-
     public static void main(String[] args) {
-        accountDao = new AccountDao();
-        paymentDao = new PaymentDao();
+        AccountDao accountDao = new AccountDao();
+        AccountController accountController = new AccountController(accountDao);
 
-        get("/accounts", AccountController.fetchAllAccounts);
-        get("/accounts/:accountUid", AccountController.fetchAccount);
-        put("/accounts/:accountUid/transfer", PaymentController.transfer);
+        PaymentDao paymentDao = new PaymentDao();
+        PaymentController paymentController = new PaymentController(accountDao, paymentDao);
+
+        get("/accounts", accountController.fetchAllAccounts);
+        get("/accounts/:accountUid", accountController.fetchAccount);
+        put("/accounts/:accountUid/transfer", paymentController.transfer);
     }
 }

@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.revolut.Application.paymentDao;
-
 public class Payment implements IPayment {
 
     private String uid;
@@ -14,7 +12,7 @@ public class Payment implements IPayment {
     private BigDecimal amount;
     private EPaymentStatus status;
 
-    Payment(String accountNumber, String sortCode, BigDecimal amount) {
+    public Payment(String accountNumber, String sortCode, BigDecimal amount) {
         this.uid = UUID.randomUUID().toString();
         this.accountNumber = accountNumber;
         this.sortCode = sortCode;
@@ -49,14 +47,6 @@ public class Payment implements IPayment {
     @Override
     public void setStatus(EPaymentStatus status) {
         this.status = status;
-    }
-
-    @Override
-    public void save() {
-        if (this.uid == null) {
-            this.uid = UUID.randomUUID().toString();
-        }
-        paymentDao.save(this);
     }
 
     @Override

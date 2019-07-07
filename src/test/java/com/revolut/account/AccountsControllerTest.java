@@ -18,11 +18,13 @@ public class AccountsControllerTest {
     @BeforeClass
     public static void beforeClass() {
         Application.main(null);
+        Spark.awaitInitialization();
     }
 
     @AfterClass
     public static void afterClass() {
         Spark.stop();
+        Spark.awaitStop();
     }
 
     @Test

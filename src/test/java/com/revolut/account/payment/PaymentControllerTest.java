@@ -13,13 +13,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PaymentControllerTest {
 
     @Before
-    public void beforeClass() {
+    public void before() {
         Application.main(null);
+        Spark.awaitInitialization();
     }
 
     @After
-    public void afterClass() {
+    public void after() {
         Spark.stop();
+        Spark.awaitStop();
     }
 
     @Test

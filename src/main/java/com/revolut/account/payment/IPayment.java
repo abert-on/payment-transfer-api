@@ -15,6 +15,4 @@ public interface IPayment {
     EPaymentStatus status();
 
     void setStatus(EPaymentStatus status);
-
-    void save();
 }

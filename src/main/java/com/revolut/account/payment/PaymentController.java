@@ -1,5 +1,6 @@
 package com.revolut.account.payment;
 
+import com.revolut.account.AccountDao;
 import com.revolut.account.IAccount;
 import com.revolut.util.InsufficientFundsException;
 import com.revolut.util.JsonUtil;
@@ -9,14 +10,20 @@ import spark.Route;
 
 import java.util.NoSuchElementException;
 
-import static com.revolut.Application.accountDao;
-
 public class PaymentController {
 
-    public static Route transfer = (Request request, Response response) -> {
+    private AccountDao accountDao;
+    private PaymentDao paymentDao;
+
+    public PaymentController(AccountDao accountDao, PaymentDao paymentDao) {
+        this.accountDao = accountDao;
+        this.paymentDao = paymentDao;
+    }
+
+    public Route transfer = (Request request, Response response) -> {
         String uid = request.params(":accountUid");
         try {
-            IAccount fromAccount = accountDao.findAccountByUid(uid);
+            IAccount fromAccount = this.accountDao.findAccountByUid(uid);
             IPayment payment = JsonUtil.jsonToObject(request.body(), Payment.class);
 
             return processPayment(response, fromAccount, payment);
@@ -27,7 +34,7 @@ public class PaymentController {
         }
     };
 
-    private static String processPayment(Response response, IAccount fromAccount, IPayment payment) {
+    private String processPayment(Response response, IAccount fromAccount, IPayment payment) {
         payment.setStatus(EPaymentStatus.PENDING);
 
         try {
@@ -35,35 +42,35 @@ public class PaymentController {
         }
         catch (InsufficientFundsException exception) {
             payment.setStatus(EPaymentStatus.FAILED);
-            payment.save();
+            this.paymentDao.save(payment);
             response.status(400);
             return "Insufficient funds for transfer from account: " + fromAccount.uid();
         }
 
         updateToAccount(payment);
 
-        payment.save();
+        this.paymentDao.save(payment);
         response.status(200);
         return JsonUtil.objectToJson(payment);
     }
 
-    private static void updateToAccount(IPayment payment) {
+    private  void updateToAccount(IPayment payment) {
         if (transferringToInternalAccount(payment)) {
-            IAccount toAccount = accountDao.findAccountByAccountDetails(payment.accountNumber(), payment.sortCode());
+            IAccount toAccount = this.accountDao.findAccountByAccountDetails(payment.accountNumber(), payment.sortCode());
             toAccount.transferIn(payment.amount());
-            accountDao.save(toAccount);
+            this.accountDao.save(toAccount);
             payment.setStatus(EPaymentStatus.COMPLETE);
         }
     }
 
-    private static void updateFromAccount(IAccount fromAccount, IPayment payment) throws InsufficientFundsException {
+    private void updateFromAccount(IAccount fromAccount, IPayment payment) throws InsufficientFundsException {
         fromAccount.transferOut(payment.amount());
-        accountDao.save(fromAccount);
+        this.accountDao.save(fromAccount);
     }
 
-    private static boolean transferringToInternalAccount(IPayment payment) {
+    private boolean transferringToInternalAccount(IPayment payment) {
         try {
-            accountDao.findAccountByAccountDetails(payment.accountNumber(), payment.sortCode());
+            this.accountDao.findAccountByAccountDetails(payment.accountNumber(), payment.sortCode());
             return true;
         }
         catch (NoSuchElementException exception) {

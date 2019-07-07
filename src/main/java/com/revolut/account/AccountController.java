@@ -8,20 +8,24 @@ import com.revolut.util.JsonUtil;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static com.revolut.Application.accountDao;
-
 public class AccountController {
 
+    private AccountDao accountDao;
 
-    public static Route fetchAllAccounts = (Request request, Response response) -> {
-        List<IAccount> accounts = accountDao.fetchAll();
+    public AccountController(AccountDao accountDao) {
+        this.accountDao = accountDao;
+    }
+
+
+    public Route fetchAllAccounts = (Request request, Response response) -> {
+        List<IAccount> accounts = this.accountDao.fetchAll();
         return JsonUtil.objectToJson(accounts);
     };
 
-    public static Route fetchAccount = (Request request, Response response) -> {
+    public Route fetchAccount = (Request request, Response response) -> {
         String uid = request.params(":accountUid");
         try {
-            IAccount account = accountDao.findAccountByUid(uid);
+            IAccount account = this.accountDao.findAccountByUid(uid);
             return JsonUtil.objectToJson(account);
         }
         catch (NoSuchElementException exception) {

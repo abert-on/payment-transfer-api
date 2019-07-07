@@ -1,6 +1,5 @@
 package com.revolut.account.payment;
 
-import com.revolut.Application;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -31,19 +30,6 @@ public class PaymentTest {
 
         // verify
         assertThat(sut.status()).isEqualTo(EPaymentStatus.COMPLETE);
-    }
-
-    @Test
-
-    public void testSave() {
-        // setup
-        Payment sut = new Payment("TEST", "TEST", BigDecimal.TEN);
-
-        // test
-        sut.save();
-
-        // verify
-        assertThat(Application.paymentDao.fetchAllPayments()).contains(sut);
     }
 
 }

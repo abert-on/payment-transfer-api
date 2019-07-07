@@ -44,9 +44,7 @@ public class Account implements IAccount{
 
     @Override
     public BigDecimal currentBalance() {
-        synchronized (this.balance) {
-            return this.balance;
-        }
+        return this.balance;
     }
 
 
@@ -57,20 +55,16 @@ public class Account implements IAccount{
 
     @Override
     public void transferOut(BigDecimal amount) throws InsufficientFundsException {
-        synchronized (this.balance) {
-            if (!balanceCoversAmount(amount)) {
-                throw new InsufficientFundsException("Insufficien funds in account : " + uid());
-            }
-            this.balance = this.balance.subtract(amount);
+        if (!balanceCoversAmount(amount)) {
+            throw new InsufficientFundsException("Insufficien funds in account : " + uid());
         }
+        this.balance = this.balance.subtract(amount);
     }
 
 
     @Override
     public void transferIn(BigDecimal amount) {
-        synchronized (this.balance) {
-            this.balance = this.balance.add(amount);
-        }
+        this.balance = this.balance.add(amount);
     }
 
     @Override
